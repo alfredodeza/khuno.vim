@@ -45,6 +45,30 @@ function! s:Flake()
 
 endfunction
 
+
+function! s:ParseReport(output)
+    " typical line expected from a report:
+    " some_file.py:107:80: E501 line too long (86 > 79 characters)
+    let current_file = expand("%:t")
+    let file_regex =  '\v(^' . current_file . '|/' . current_file . ')'
+
+    let path_to_lines = {}
+    for line in split(a:output, '\n')
+        if line =~ file_regex
+            let error_line = matchlist(line, '\v:(\d+):')[1]
+            let has_error_column = matchlist(line, '\v:(\d+):(\d+):')
+            if has_error_column:
+                let error_column = has_error_column[2]
+            else:
+                let error_column = 0
+            endif
+            let error_text = matchlist(line, '\v(\d+):\s+(.*)')[2]
+            let error.path = file_path[1]
+        endif
+    endfor
+endfunction
+
+
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
     return _version
@@ -63,9 +87,10 @@ function! s:Proxy(action)
     endif
     if (a:action == "version")
         call s:Version()
-    else
+    elseif (a:action == "run")
         call s:Flake()
-        "call s:Echo("Khuno: not a valid file or option ==> " . a:action)
+    else
+        call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
 endfunction
 
