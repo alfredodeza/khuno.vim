@@ -32,6 +32,18 @@ function! s:Echo(msg, ...)
     let &ruler=x | let &showcmd=y
 endfun
 
+function! s:CurrentPath()
+    let cwd = expand("%:p")
+    return cwd
+endfunction
+
+function! s:Flake()
+    let abspath = s:CurrentPath()
+    let cmd = "flake8 " . abspath
+    let out = system(cmd)
+    echo out
+
+endfunction
 
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
@@ -49,18 +61,11 @@ function! s:Proxy(action)
         call s:Echo("flake8 not found. This plugin needs flake8 installed and accessible")
         return
     endif
-    if filereadable(a:action)
-        call s:SetGlobals()
-        call s:LoadFile(a:action)
-        call s:CreateBuffer()
-        call s:SourceOptions()
-        call s:SetSyntax()
-        call s:SetStatusLine()
-        call s:AutoNextLine()
-    elseif (a:action == "version")
+    if (a:action == "version")
         call s:Version()
     else
-        call s:Echo("Khuno: not a valid file or option ==> " . a:action)
+        call s:Flake()
+        "call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
 endfunction
 
