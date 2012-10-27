@@ -41,7 +41,7 @@ function! s:Flake()
     let abspath = s:CurrentPath()
     let cmd = "flake8 " . abspath
     let out = system(cmd)
-    echo out
+    call s:ParseReport(out)
 
 endfunction
 
@@ -52,20 +52,28 @@ function! s:ParseReport(output)
     let current_file = expand("%:t")
     let file_regex =  '\v(^' . current_file . '|/' . current_file . ')'
 
-    let path_to_lines = {}
+    let errors = {}
     for line in split(a:output, '\n')
         if line =~ file_regex
+            let current_error = {}
             let error_line = matchlist(line, '\v:(\d+):')[1]
             let has_error_column = matchlist(line, '\v:(\d+):(\d+):')
-            if has_error_column:
-                let error_column = has_error_column[2]
-            else:
-                let error_column = 0
+            if (has_error_column != [])
+                let current_error.error_column = has_error_column[2]
+            else
+                let current_error.error_column = 0
             endif
-            let error_text = matchlist(line, '\v(\d+):\s+(.*)')[2]
-            let error.path = file_path[1]
+            let current_error.error_text = matchlist(line, '\v(\d+):\s+(.*)')[2]
+
+            " Lets see if we need to append to an existing line or not
+            if has_key(errors, error_line)
+                call add(errors[error_line], current_error)
+            else
+                let errors[error_line] = [current_error]
+            endif
         endif
     endfor
+    echo errors
 endfunction
 
 
