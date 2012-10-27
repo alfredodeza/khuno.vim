@@ -18,9 +18,18 @@ if !exists('g:flake_executable')
   let g:flake_executable = 'flake8'
 endif
 
+" au commands
+
+au BufLeave <buffer> call s:ClearFlakes()
+
+au BufEnter <buffer> call s:Flake()
+au BufWritePost <buffer> call s:Flake()
+
+au CursorHold <buffer> call s:GetFlakesMessage()
+au CursorMoved <buffer> call s:GetFlakesMessage()
 
 function! s:Echo(msg, ...)
-    redraw!
+    redraw
     let x=&ruler | let y=&showcmd
     set noruler noshowcmd
     if (a:0 == 1)
@@ -73,7 +82,46 @@ function! s:ParseReport(output)
             endif
         endif
     endfor
-    echo errors
+    let b:flake_errors = errors
+    call s:ShowErrors()
+endfunction
+
+function! s:ShowErrors()
+    highlight link Flakes SpellBad
+    for line in keys(b:flake_errors)
+        "for error in line
+        call matchadd('Flakes', '\%' . line . 'l\n\@!')
+    endfor
+endfunction
+
+
+function s:ClearFlakes()
+    let s:matches = getmatches()
+    for s:matchId in s:matches
+        if s:matchId['group'] == 'Flakes'
+            call matchdelete(s:matchId['id'])
+        endif
+    endfor
+    let b:flakes_errors = {}
+endfunction
+
+
+function s:GetFlakesMessage()
+        if (b:flake_errors == {})
+            return
+        endif
+
+        let s:cursorPos = getpos(".")
+
+        " if there's a message for the line the cursor is currently on, echo
+        " it to the console
+        if has_key(b:flake_errors, s:cursorPos[1])
+            call s:Echo(b:flake_errors[s:cursorPos[1]][0]['error_text'])
+            return
+        else
+            echo
+        endif
+
 endfunction
 
 
