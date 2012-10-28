@@ -21,11 +21,8 @@ endif
 " au commands
 
 au BufLeave <buffer> call s:ClearFlakes()
-
 au BufEnter <buffer> call s:Flake()
 au BufWritePost <buffer> call s:Flake()
-
-au CursorHold <buffer> call s:GetFlakesMessage()
 au CursorMoved <buffer> call s:GetFlakesMessage()
 
 function! s:Echo(msg, ...)
@@ -51,7 +48,6 @@ function! s:Flake()
     let cmd = "flake8 " . abspath
     let out = system(cmd)
     call s:ParseReport(out)
-
 endfunction
 
 
@@ -80,48 +76,51 @@ function! s:ParseReport(output)
             else
                 let errors[error_line] = [current_error]
             endif
+            let errors.last_error_line = error_line
         endif
     endfor
     let b:flake_errors = errors
     call s:ShowErrors()
 endfunction
 
+
 function! s:ShowErrors()
     highlight link Flakes SpellBad
     for line in keys(b:flake_errors)
-        "for error in line
-        call matchadd('Flakes', '\%' . line . 'l\n\@!')
+        if line != "last_error_line"
+            let err = line[0]
+            if (err['error_column'] > 0)
+                let match ='^\%'. line . 'l\_.\{-}\zs\k\+\k\@!\%>' . err['error_column'] . 'c'
+                 call matchadd('Flakes', match)
+            else
+                call matchadd('Flakes', '\%' . line . 'l\n\@!')
+            endif
+        endif
     endfor
 endfunction
 
 
-function s:ClearFlakes()
+function! s:ClearFlakes() abort
     let s:matches = getmatches()
     for s:matchId in s:matches
         if s:matchId['group'] == 'Flakes'
             call matchdelete(s:matchId['id'])
         endif
     endfor
-    let b:flakes_errors = {}
+    let b:flake_errors = {}
 endfunction
 
 
-function s:GetFlakesMessage()
-        if (b:flake_errors == {})
-            return
-        endif
-
+function! s:GetFlakesMessage() abort
         let s:cursorPos = getpos(".")
-
+        let line_no = s:cursorPos[1]
         " if there's a message for the line the cursor is currently on, echo
         " it to the console
-        if has_key(b:flake_errors, s:cursorPos[1])
-            call s:Echo(b:flake_errors[s:cursorPos[1]][0]['error_text'])
-            return
+        if has_key(b:flake_errors, line_no)
+            call s:Echo(b:flake_errors[line_no][0]['error_text'])
         else
             echo
         endif
-
 endfunction
 
 
