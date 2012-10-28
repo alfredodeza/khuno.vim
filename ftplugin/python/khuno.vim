@@ -55,7 +55,6 @@ function! s:ParseReport(output)
     " typical line expected from a report:
     " some_file.py:107:80: E501 line too long (86 > 79 characters)
     let current_file = expand("%:t")
-    "let file_regex =  '\v(^' . current_file . '|/' . current_file . ')'
     let line_regex = '\v^(.*.py):(\d+):'
 
     let errors = {}
