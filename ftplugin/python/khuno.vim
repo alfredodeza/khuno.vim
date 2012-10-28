@@ -55,11 +55,12 @@ function! s:ParseReport(output)
     " typical line expected from a report:
     " some_file.py:107:80: E501 line too long (86 > 79 characters)
     let current_file = expand("%:t")
-    let file_regex =  '\v(^' . current_file . '|/' . current_file . ')'
+    "let file_regex =  '\v(^' . current_file . '|/' . current_file . ')'
+    let line_regex = '\v^(.*.py):(\d+):'
 
     let errors = {}
     for line in split(a:output, '\n')
-        if line =~ file_regex
+        if line =~ line_regex
             let current_error = {}
             let error_line = matchlist(line, '\v:(\d+):')[1]
             let has_error_column = matchlist(line, '\v:(\d+):(\d+):')
@@ -80,7 +81,9 @@ function! s:ParseReport(output)
         endif
     endfor
     let b:flake_errors = errors
-    call s:ShowErrors()
+    if len(errors)
+        call s:ShowErrors()
+    endif
 endfunction
 
 
