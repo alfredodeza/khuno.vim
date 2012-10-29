@@ -12,18 +12,32 @@ if exists("g:loaded_khuno") || &cp
   finish
 endif
 
+
 let g:loaded_khuno = 1
 
-if !exists('g:flake_executable')
-  let g:flake_executable = 'flake8'
+
+if !exists('g:khuno_flake_cmd')
+  let g:khuno_flake_cmd = 'flake8'
 endif
 
-" au commands
 
-au BufLeave <buffer> call s:ClearFlakes()
-au BufEnter <buffer> call s:Flake()
-au BufWritePost <buffer> call s:Flake()
+" au commands
+augroup khuno_automagic
+    au BufEnter <buffer> call s:Flake()
+    au BufWritePost <buffer> call s:Flake()
+augroup END
+
 au CursorMoved <buffer> call s:GetFlakesMessage()
+au BufLeave <buffer> call s:ClearFlakes()
+
+function! s:KhunoAutomagic(enabled)
+    if a:enabled
+        augroup khuno_automagic
+    else
+        au! khuno_automagic
+    endif
+endfunction
+
 
 function! s:Echo(msg, ...)
     redraw
@@ -38,14 +52,47 @@ function! s:Echo(msg, ...)
     let &ruler=x | let &showcmd=y
 endfun
 
+
+if exists('g:khuno_automagic')
+    if (g:khuno_automagic > 0)
+        call s:KhunoAutomagic(1)
+    else
+        call s:KhunoAutomagic(0)
+    endif
+else
+    call s:KhunoAutomagic(1)
+endif
+
+
 function! s:CurrentPath()
     let cwd = expand("%:p")
     return cwd
 endfunction
 
+
 function! s:Flake()
+    if exists("g:khuno_builtins")
+        let s:khuno_builtins_opt=" --builtins=".g:khuno_builtins
+    else
+        let s:khuno_builtins_opt=""
+    endif
+
+    if exists("g:khuno_ignore")
+        let s:khuno_ignores=" --ignore=".g:khuno_ignore
+    else
+        let s:khuno_ignores=""
+    endif
+
+    if exists("g:khuno_max_line_length")
+        let s:khuno_max_line_length=" --max-line-length=".g:khuno_max_line_length
+    else
+        let s:khuno_max_line_length=""
+    endif
+
+    let cmd=g:khuno_flake_cmd . s:khuno_builtins_opt . s:khuno_ignores . s:khuno_max_line_length
+
     let abspath = s:CurrentPath()
-    let cmd = "flake8 " . abspath
+    let cmd = cmd . " ". abspath
     let out = system(cmd)
     call s:ParseReport(out)
 endfunction
@@ -114,6 +161,9 @@ endfunction
 
 
 function! s:GetFlakesMessage() abort
+        if !(exists('b:flake_errors'))
+            return
+        endif
         let s:cursorPos = getpos(".")
         let line_no = s:cursorPos[1]
         " if there's a message for the line the cursor is currently on, echo
@@ -128,7 +178,8 @@ endfunction
 
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
-    return _version
+    let actionables = "run\n"
+    return _version . actionables
 endfunction
 
 
@@ -138,7 +189,7 @@ endfunction
 
 
 function! s:Proxy(action)
-    if (executable(g:flake_executable) == 0)
+    if (executable(g:khuno_flake_cmd) == 0)
         call s:Echo("flake8 not found. This plugin needs flake8 installed and accessible")
         return
     endif
