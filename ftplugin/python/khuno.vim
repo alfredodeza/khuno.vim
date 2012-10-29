@@ -133,6 +133,12 @@ function! s:ParseReport(output)
     endif
 endfunction
 
+function! s:KhunoStatus()
+    if len(b:flake_errors)
+        return  'FUU'
+    endif
+    return ''
+endfunction
 
 function! s:ShowErrors()
     highlight link Flakes SpellBad
