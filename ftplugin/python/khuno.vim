@@ -126,6 +126,7 @@ function! s:ParseReport(output)
             let errors.last_error_line = error_line
         endif
     endfor
+    silent! call s:ClearFlakes()
     let b:flake_errors = errors
     if len(errors)
         call s:ShowErrors()
@@ -137,10 +138,14 @@ function! s:ShowErrors()
     highlight link Flakes SpellBad
     for line in keys(b:flake_errors)
         if line != "last_error_line"
-            let err = line[0]
+            let err = b:flake_errors[line][0]
             if (err['error_column'] > 0)
-                let match ='^\%'. line . 'l\_.\{-}\zs\k\+\k\@!\%>' . err['error_column'] . 'c'
-                 call matchadd('Flakes', match)
+                if err['error_text'] =~ '\v\s+(line)'
+                    let match = '\%' . line . 'l\n\@!'
+                else
+                    let match = '^\%'. line . 'l\_.\{-}\zs\k\+\k\@!\%>' . err['error_column'] . 'c'
+                endif
+                call matchadd('Flakes', match)
             else
                 call matchadd('Flakes', '\%' . line . 'l\n\@!')
             endif
