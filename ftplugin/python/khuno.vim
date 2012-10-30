@@ -28,6 +28,7 @@ augroup khuno_automagic
 augroup END
 
 au CursorMoved <buffer> call s:GetFlakesMessage()
+au CursorMoved <buffer> call s:ParseReport()
 au BufLeave <buffer> call s:ClearFlakes()
 
 function! s:KhunoAutomagic(enabled)
@@ -93,19 +94,21 @@ function! s:Flake()
 
     let abspath = s:CurrentPath()
     let cmd = cmd . " ". abspath
-    let out = system(cmd)
-    call s:ParseReport(out)
+    call s:AsyncCmd(cmd)
 endfunction
 
 
-function! s:ParseReport(output)
+function! s:ParseReport()
     " typical line expected from a report:
     " some_file.py:107:80: E501 line too long (86 > 79 characters)
+    if (b:khuno_called_async == 0)
+        return
+    endif
     let current_file = expand("%:t")
     let line_regex = '\v^(.*.py):(\d+):'
 
     let errors = {}
-    for line in split(a:output, '\n')
+    for line in readfile(b:khuno_temp_file)
         if line =~ line_regex
             let current_error = {}
             let error_line = matchlist(line, '\v:(\d+):')[1]
@@ -133,6 +136,7 @@ function! s:ParseReport(output)
     endif
 endfunction
 
+
 function! s:KhunoStatus()
     if len(b:flake_errors)
         return  'FUU'
@@ -140,7 +144,8 @@ function! s:KhunoStatus()
     return ''
 endfunction
 
-function! s:ShowErrors()
+
+function! s:ShowErrors() abort
     highlight link Flakes SpellBad
     for line in keys(b:flake_errors)
         if line != "last_error_line"
@@ -157,6 +162,7 @@ function! s:ShowErrors()
             endif
         endif
     endfor
+    let b:khuno_called_async = 0
 endfunction
 
 
@@ -187,6 +193,14 @@ function! s:GetFlakesMessage() abort
 endfunction
 
 
+function! s:AsyncCmd(cmd)
+  let b:khuno_temp_file = tempname()
+  let command = "silent! ! " . a:cmd . " > " . b:khuno_temp_file . " 2> /dev/null &"
+  execute command
+  let b:khuno_called_async = 1
+endfunction
+
+
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
     let actionables = "run\n"
@@ -208,6 +222,8 @@ function! s:Proxy(action)
         call s:Version()
     elseif (a:action == "run")
         call s:Flake()
+    elseif (a:action == "read")
+        call s:ParseReport()
     else
         call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
