@@ -1,3 +1,11 @@
+" File:        khuno.vim
+" Description: A Python Flakes plugin: analyze your code on the fly
+" Maintainer:  Alfredo Deza <alfredodeza AT gmail.com>
+" License:     MIT
+"
+"============================================================================
+
+
 function! khuno#Status(...) abort
     if !exists('b:flake_errors')
         return ''
