@@ -21,6 +21,38 @@ if !exists('g:khuno_flake_cmd')
 endif
 
 
+function! s:KhunoErrorSyntax() abort
+  let b:current_syntax = 'khunoErrors'
+  syn match KhunoDelimiter            "\v\s+(\=\=\>)\s+"
+  syn match KhunoLine                 "Line:"
+  syn match KhunoColumn               "\v\s+Col:\s+"
+
+  hi def link KhunoDelimiter          Comment
+  hi def link KhunoLine               String
+  hi def link KhunoColumn             String
+endfunction
+
+
+function! s:GoToInlineError(direction)
+    "  Goes to the current open window that matches
+    "  the error path and moves you there. Pretty awesome
+    let text = getline('.')
+    echo text
+    if !len(text)
+        return
+    endif
+    let line_number = matchlist(text, '\v^(Line:\s+)(\d+)')[2]
+    let column_number = matchlist(text, '\v\s+(Col:\s+)(\d+)')[2]
+
+     " Go to previous window
+      exe 'wincmd p'
+      execute line_number
+      execute 'normal! zz'
+      execute 'normal! ' . column_number . '|h'
+      exe 'wincmd p'
+endfunction
+
+
 " au commands
 augroup khuno_automagic
     au BufEnter <buffer> call s:Flake()
@@ -29,7 +61,7 @@ augroup END
 
 au CursorMoved <buffer> call s:GetFlakesMessage()
 au CursorMoved <buffer> call s:ParseReport()
-au BufLeave <buffer> call s:ClearFlakes()
+
 
 function! s:KhunoAutomagic(enabled)
     if a:enabled
@@ -68,6 +100,74 @@ endif
 function! s:CurrentPath()
     let cwd = expand("%:p")
     return cwd
+endfunction
+
+
+function! s:ClearAll(...)
+    let current = winnr()
+    let bufferL = [ 'Errors.khuno']
+    for b in bufferL
+        let _window = bufwinnr(b)
+        if (_window != -1)
+            silent! execute _window . 'wincmd w'
+            silent! execute 'q'
+        endif
+    endfor
+
+    " Remove any echoed messages
+    if (a:0 == 1)
+        " Try going back to our starting window
+        " and remove any left messages
+        call s:Echo('')
+        silent! execute 'wincmd p'
+    else
+        execute current . 'wincmd w'
+    endif
+endfunction
+
+
+function! MakeErrorWindow(...) abort
+    call s:ClearAll()
+    au BufLeave *.khuno echo "" | redraw
+    if a:0 > 0
+        let gain_focus = a:0
+    else
+        let gain_focus = 0
+    endif
+    if (len(b:flake_errors) == 0)
+        call s:Echo("No failed tests from a previous run")
+        return
+    endif
+    let s:flake_errors = b:flake_errors
+	let winnr = bufwinnr('Errors.khuno')
+	silent! execute  winnr < 0 ? 'botright new ' . 'Errors.khuno' : winnr . 'wincmd w'
+	setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=khuno
+    let error_number = 0
+    for line_no in keys(s:flake_errors)
+        if line_no != "last_error_line"
+            let errors = s:flake_errors[line_no]
+            for err in errors
+                let error = err["error_text"]
+                let column = err["error_column"]
+                let message = printf('Line: %-*u Col: %-*u ==> %s', 3, line_no, 3, column, error)
+                let error_number = error_number + 1
+                call setline(error_number, message)
+            endfor
+        endif
+    endfor
+    execute "sort n"
+    if (line('$') > 10)
+        let resize = 10
+    else
+        let resize = line('$')
+    endif
+	silent! execute 'resize ' . resize
+    autocmd! BufEnter Errors.khuno call s:CloseIfLastWindow()
+    nnoremap <silent> <buffer> q       :call <sid>ClearAll(1)<CR>
+    nnoremap <silent> <buffer> <Enter> :call <sid>GoToInlineError(1)<CR>
+    call s:KhunoErrorSyntax()
+    exe "normal! 0|h"
+    call s:Echo("Hit q to exit", 1)
 endfunction
 
 
@@ -163,6 +263,13 @@ function! s:ShowErrors() abort
         endif
     endfor
     let b:khuno_called_async = 0
+endfunction
+
+
+function! s:CloseIfLastWindow()
+  if winnr("$") == 1
+    q
+  endif
 endfunction
 
 
