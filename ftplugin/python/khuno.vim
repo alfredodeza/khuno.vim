@@ -126,14 +126,11 @@ function! s:ClearAll(...)
 endfunction
 
 
-function! MakeErrorWindow(...) abort
+function! s:MakeErrorWindow() abort
     call s:ClearAll()
-    au BufLeave *.khuno echo "" | redraw
-    if a:0 > 0
-        let gain_focus = a:0
-    else
-        let gain_focus = 0
-    endif
+    " TODO revisit this at some point, redrawing makes the terminal
+    " flicker
+    "au BufLeave *.khuno echo "" | redraw!
     if (len(b:flake_errors) == 0)
         call s:Echo("No failed tests from a previous run")
         return
@@ -329,6 +326,8 @@ function! s:Proxy(action)
         call s:Version()
     elseif (a:action == "run")
         call s:Flake()
+    elseif (a:action == "show")
+        call s:MakeErrorWindow()
     elseif (a:action == "read")
         call s:ParseReport()
     else
