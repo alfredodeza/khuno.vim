@@ -320,7 +320,7 @@ function! s:Version()
 endfunction
 
 
-function! s:Version()
+function! s:Help()
     call s:Echo("Available options: version, run show and read", 1)
 endfunction
 
@@ -343,7 +343,7 @@ function! s:Proxy(action)
     elseif (a:action == "read")
         call s:ParseReport()
     elseif (a:action == "help")
-        call s:PrintHelp()
+        call s:Help()
     else
         call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
