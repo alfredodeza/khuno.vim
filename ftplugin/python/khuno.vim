@@ -136,9 +136,9 @@ function! s:MakeErrorWindow() abort
         return
     endif
     let s:flake_errors = b:flake_errors
-	let winnr = bufwinnr('Errors.khuno')
-	silent! execute  winnr < 0 ? 'botright new ' . 'Errors.khuno' : winnr . 'wincmd w'
-	setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=khuno
+    let winnr = bufwinnr('Errors.khuno')
+    silent! execute  winnr < 0 ? 'botright new ' . 'Errors.khuno' : winnr . 'wincmd w'
+    setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=khuno
     let error_number = 0
     for line_no in keys(s:flake_errors)
         if line_no != "last_error_line"
@@ -158,7 +158,7 @@ function! s:MakeErrorWindow() abort
     else
         let resize = line('$')
     endif
-	silent! execute 'resize ' . resize
+    silent! execute 'resize ' . resize
     autocmd! BufEnter Errors.khuno call s:CloseIfLastWindow()
     nnoremap <silent> <buffer> q       :call <sid>ClearAll(1)<CR>
     nnoremap <silent> <buffer> <Enter> :call <sid>GoToInlineError(1)<CR>
@@ -299,8 +299,10 @@ endfunction
 
 function! s:AsyncCmd(cmd)
   let b:khuno_temp_file = tempname()
+  let b:khuno_running = 1
   let command = "silent! ! " . a:cmd . " > " . b:khuno_temp_file . " 2> /dev/null &"
   execute command
+  let b:khuno_running = 0
   let b:khuno_called_async = 1
 endfunction
 
@@ -317,6 +319,11 @@ function! s:Version()
 endfunction
 
 
+function! s:Version()
+    call s:Echo("Available options: version, run show and read", 1)
+endfunction
+
+
 function! s:Proxy(action)
     if (executable(g:khuno_flake_cmd) == 0)
         call s:Echo("flake8 not found. This plugin needs flake8 installed and accessible")
@@ -327,9 +334,14 @@ function! s:Proxy(action)
     elseif (a:action == "run")
         call s:Flake()
     elseif (a:action == "show")
-        call s:MakeErrorWindow()
+        if b:khuno_running:
+            call s:Echo("Khuno is updating, please wait...", 1)
+        else:
+            call s:MakeErrorWindow()
     elseif (a:action == "read")
         call s:ParseReport()
+    elseif (a:action == "help")
+        call s:PrintHelp()
     else
         call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
