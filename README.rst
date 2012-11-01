@@ -62,6 +62,25 @@ check and underline all the words or lines in the current file.
 Every time you save the file you will trigger the asynchronous call, enforcing
 a refresh of the check and error display.
 
+Customization
+-------------
+To add builtins, in your .vimrc::
+
+    let g:khuno_builtins="_,apply"
+
+To ignore errors, in your .vimrc::
+
+    let g:khuno_ignore="E501,W293"
+
+If you want to change the max line length for PEP8::
+
+    let g:khuno_max_line_length=99
+
+To customize the location of your flake8 binary, set `g:khuno_flake_cmd`:
+
+    let g:khuno_flake_cmd="/opt/strangebin/flake8000"
+
+
 Showing Errors and Jumping
 --------------------------
 Just like what you would expect from something that pushes errors to the
