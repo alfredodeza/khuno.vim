@@ -12,6 +12,7 @@ if exists("g:loaded_khuno") || &cp
   finish
 endif
 
+let g:khuno_running = 0
 
 let g:loaded_khuno = 1
 
@@ -299,10 +300,10 @@ endfunction
 
 function! s:AsyncCmd(cmd)
   let b:khuno_temp_file = tempname()
-  let b:khuno_running = 1
+  let g:khuno_running = 1
   let command = "silent! ! " . a:cmd . " > " . b:khuno_temp_file . " 2> /dev/null &"
   execute command
-  let b:khuno_running = 0
+  let g:khuno_running = 0
   let b:khuno_called_async = 1
 endfunction
 
@@ -334,10 +335,11 @@ function! s:Proxy(action)
     elseif (a:action == "run")
         call s:Flake()
     elseif (a:action == "show")
-        if b:khuno_running:
+        if g:khuno_running
             call s:Echo("Khuno is updating, please wait...", 1)
-        else:
+        else
             call s:MakeErrorWindow()
+        endif
     elseif (a:action == "read")
         call s:ParseReport()
     elseif (a:action == "help")
