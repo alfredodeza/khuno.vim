@@ -40,10 +40,10 @@ you will need to distribute the files accordingly.
 
 After you have installed the plugin you will need 2 more things:
 
-#. `pip install flake8` This needs to be in your path, it doesn't matter where
+1. `pip install flake8` This needs to be in your path, it doesn't matter where
 it is installed.
 
-#. ``filetype plugin on`` Enable the filetype detection in Vim that matches the
+2. ``filetype plugin on`` Enable the filetype detection in Vim that matches the
 file type to plugins.
 
 .. note::
@@ -84,6 +84,18 @@ with contents similar to this::
 There is a special mapping for that buffer: if you press enter it will go the
 previous window and move to the exact line and column where **that** error was
 triggered.
+
+``statusline`` helper function
+------------------------------
+If you want to display some text when there are errors in the file, you can use the helper
+function. I use the optional text to display all my anger when there are
+errors, like::
+
+    set statusline=%#ErrorMsg#                   " set the highlight to error
+    set statusline+=%{khuno#Status('FUU')}%*     " are there any errors? FUU!
+    set statusline+=%*                           " switch back to normal status color
+
+The text is optional, it will default to ``[E]``. How boring.
 
 About the name
 --------------
