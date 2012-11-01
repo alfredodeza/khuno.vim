@@ -20,5 +20,3 @@ function! khuno#Status(...) abort
     else
         return ''
 endfunction
-
-

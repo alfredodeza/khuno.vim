@@ -45,11 +45,11 @@ function! s:GoToInlineError(direction)
     let column_number = matchlist(text, '\v\s+(Col:\s+)(\d+)')[2]
 
      " Go to previous window
-      exe 'wincmd p'
-      execute line_number
-      execute 'normal! zz'
-      execute 'normal! ' . column_number . '|h'
-      exe 'wincmd p'
+     exe 'wincmd p'
+     execute line_number
+     execute 'normal! zz'
+     execute 'normal! ' . column_number . '|h'
+     exe 'wincmd p'
 endfunction
 
 
@@ -132,7 +132,7 @@ function! s:MakeErrorWindow() abort
     " flicker
     "au BufLeave *.khuno echo "" | redraw!
     if (len(b:flake_errors) == 0)
-        call s:Echo("No failed tests from a previous run")
+        call s:Echo("No flake errors from a previous run")
         return
     endif
     let s:flake_errors = b:flake_errors
