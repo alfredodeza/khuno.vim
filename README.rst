@@ -18,6 +18,8 @@ are welcomed and encouraged.
 
 Bug me at @alfredodeza on Twitter or fill the issues tab for this project.
 
+.. image:: https://pbs.twimg.com/media/A6gNXsVCQAAKYLi.png
+
 why?
 ----
 I started this plugin because I am (was! ha!) pissed off at the alternatives.
