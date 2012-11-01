@@ -12,6 +12,12 @@ Analyze your code with Tarek Ziade's Flake8 in Vim - seamlessly.
 * **highly performing**, every bit of the plugin is meant to be as fast as
   possible.
 
+I would still consider this an *alpha* version, there are some undocumented
+things (on purpose, I swear) that need some work, but feedback and complaints
+are welcomed and encouraged.
+
+Bug me at @alfredodeza on Twitter or fill the issues tab for this project.
+
 why?
 ----
 I started this plugin because I am (was! ha!) pissed off at the alternatives.
@@ -82,3 +88,8 @@ About the name
 Khuno is the name of an Inca God that ruled the cold weather and loved the
 snow. He would get *very* angry when someone messed with his snow. Now he rules
 another type of flakes, the Python ones.
+
+License
+-------
+Copyright (c) Alfredo Deza Distributed under the MIT license, see plugin for
+details.
