@@ -55,12 +55,12 @@ endfunction
 
 " au commands
 augroup khuno_automagic
-    au BufEnter <buffer> call s:Flake()
-    au BufWritePost <buffer> call s:Flake()
+    au BufEnter * if &ft ==# 'python' | call s:Flake() | endif
+    au BufWritePost * if &ft ==# 'python' | call s:Flake() | endif
 augroup END
 
-au CursorMoved <buffer> call s:GetFlakesMessage()
-au CursorMoved <buffer> call s:ParseReport()
+au CursorMoved * if &ft ==# 'python' | call  s:GetFlakesMessage() | endif
+au CursorMoved * if &ft ==# 'python' | call  s:ParseReport() | endif
 
 
 function! s:KhunoAutomagic(enabled)
@@ -307,13 +307,13 @@ endfunction
 
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
-    let actionables = "run\n"
+    let actionables = "run\nshow\nread\n"
     return _version . actionables
 endfunction
 
 
 function! s:Version()
-    call s:Echo("khuno.vim version 0.0.1dev", 1)
+    call s:Echo("khuno.vim version 0.0.2dev", 1)
 endfunction
 
 
@@ -336,4 +336,4 @@ function! s:Proxy(action)
 endfunction
 
 
-command! -nargs=+ -complete=file Khuno call s:Proxy(<f-args>)
+command! -nargs=+ -complete=custom,s:Completion Khuno call s:Proxy(<f-args>)
