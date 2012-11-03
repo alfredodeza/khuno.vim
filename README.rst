@@ -94,6 +94,9 @@ To map it, use something like this (say, for your leader key + x)::
 
         nmap <silent><Leader>x <Esc>:Khuno show<CR>
 
+This command is *toggable*, if the split window is already open, this command
+will close it, otherwise it will open it.
+
 When the window is triggered, it will appear at the bottom and display 10 lines
 at the most (to avoid clobbering the whole space). And a list will be shown
 with contents similar to this::
