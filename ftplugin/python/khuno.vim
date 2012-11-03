@@ -126,6 +126,18 @@ function! s:ClearAll(...)
 endfunction
 
 
+function! s:ToggleErrorWindow()
+    let winnr = bufwinnr('Errors.khuno')
+    if (winnr == -1)
+        call s:MakeErrorWindow()
+    else
+        silent! execute winnr . 'wincmd w'
+        silent! execute 'q'
+        silent! execute 'wincmd p'
+    endif
+endfunction
+
+
 function! s:MakeErrorWindow() abort
     call s:ClearAll()
     " TODO revisit this at some point, redrawing makes the terminal
@@ -327,7 +339,7 @@ function! s:Proxy(action)
     elseif (a:action == "run")
         call s:Flake()
     elseif (a:action == "show")
-        call s:MakeErrorWindow()
+        call s:ToggleErrorWindow()
     elseif (a:action == "read")
         call s:ParseReport()
     else
