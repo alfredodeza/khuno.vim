@@ -76,7 +76,7 @@ If you want to change the max line length for PEP8::
 
     let g:khuno_max_line_length=99
 
-To customize the location of your flake8 binary, set `g:khuno_flake_cmd`::
+To customize the location of your flake8 binary, set ``g:khuno_flake_cmd``::
 
     let g:khuno_flake_cmd="/opt/strangebin/flake8000"
 
