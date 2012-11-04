@@ -283,14 +283,6 @@ function! s:ParseReport()
 endfunction
 
 
-function! s:KhunoStatus()
-    if len(b:flake_errors)
-        return  'FUU'
-    endif
-    return ''
-endfunction
-
-
 function! s:ShowErrors() abort
     highlight link Flakes SpellBad
     for line in keys(b:flake_errors)
