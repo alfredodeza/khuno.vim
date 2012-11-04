@@ -23,11 +23,13 @@ endif
 
 function! s:KhunoDebugSyntax() abort
   let b:current_syntax = 'khunoDebug'
-  syn match KhunoDelimiter            "\v\s+(\=\=\>)\s+"
-  syn match KhunoKeys                 "\v^\w+\s+(.?)(\=)"
+  syn match KhunoKeys                 "\v^(Temp file|Command|Error file)\s+"
+  syn match KhunoTitle                '\v^Khuno(.*)$'
+  syn match KhunoDelimiter            '\v(\=\=\>)'
 
-  hi def link KhunoDelimiter          Comment
   hi def link KhunoKeys               String
+  hi def link KhunoTitle              String
+  hi def link KhunoDelimiter          Comment
 endfunction
 
 
