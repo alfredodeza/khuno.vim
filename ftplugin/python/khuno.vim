@@ -105,7 +105,7 @@ endfunction
 
 function! s:ClearAll(...)
     let current = winnr()
-    let bufferL = [ 'Errors.khuno']
+    let bufferL = ['Errors.khuno', 'Debug.khuno']
     for b in bufferL
         let _window = bufwinnr(b)
         if (_window != -1)
@@ -135,6 +135,43 @@ function! s:ToggleErrorWindow()
         silent! execute 'q'
         silent! execute 'wincmd p'
     endif
+endfunction
+
+
+function! s:MakeDebugWindow() abort
+    if !exists('b:khuno_debug')
+        call s:Echo("khuno: no debug information available.")
+        return
+    endif
+    let s:debug = b:khuno_debug
+    let s:error_file = b:khuno_error_files[0]
+    call s:ClearAll()
+	let winnr = bufwinnr('Debug.khuno')
+	silent! execute  winnr < 0 ? 'botright new ' . 'Debug.khuno' : winnr . 'wincmd w'
+	setlocal buftype=nowrite bufhidden=wipe nobuflisted noswapfile nowrap number filetype=khuno
+    let error_number = 1
+    call setline(1, "Khuno debug information:")
+    execute 'normal o'. 'Temp file  ==> ' . s:debug['temp_file']
+    execute 'normal o'. 'Command    ==> ' . s:debug['cmd']
+    execute 'normal o'. 'Error file ==> ' . s:debug['temp_error']
+    if filereadable(s:error_file) && len(readfile(s:error_file))
+        execute 'normal o'. 'Errors from command show below:'
+        for line in readfile(s:error_file)
+             execute 'normal o' . line
+        endfor
+    endif
+    if (line('$') > 10)
+        let resize = 10
+    else
+        let resize = line('$')
+    endif
+	silent! execute 'resize ' . resize
+    autocmd! BufEnter Debug.khuno call s:CloseIfLastWindow()
+    nnoremap <silent> <buffer> q       :call <sid>ClearAll(1)<CR>
+    nnoremap <silent> <buffer> <Enter> :call <sid>ClearAll(1)<CR>
+    exe 1
+    exe "normal! 0|h"
+    call s:Echo("Hit q or Enter to exit", 1)
 endfunction
 
 
@@ -213,11 +250,11 @@ function! s:ParseReport()
     if (b:khuno_called_async == 0)
         return
     endif
+
     let current_file = expand("%:t")
     let line_regex = '\v^(.*.py):(\d+):'
-
     let errors = {}
-    for line in readfile(b:khuno_temp_file)
+    for line in readfile(b:khuno_debug['temp_file'])
         if line =~ line_regex
             let current_error = {}
             let error_line = matchlist(line, '\v:(\d+):')[1]
@@ -310,22 +347,31 @@ endfunction
 
 
 function! s:AsyncCmd(cmd)
-  let b:khuno_temp_file = tempname()
-  let command = "silent! ! " . a:cmd . " > " . b:khuno_temp_file . " 2> /dev/null &"
-  execute command
-  let b:khuno_called_async = 1
+    if !exists('b:khuno_error_files')
+        let b:khuno_error_files = []
+    endif
+    let s:khuno_temp_file = tempname()
+    let s:khuno_temp_error_file = tempname()
+    let command = "! " . a:cmd . " > " . s:khuno_temp_file . " 2> " . s:khuno_temp_error_file . " &"
+    silent execute command
+    let b:khuno_called_async = 1
+    let b:khuno_debug = {}
+    let b:khuno_debug.temp_file = s:khuno_temp_file
+    let b:khuno_debug.temp_error = s:khuno_temp_error_file
+    let b:khuno_debug.cmd = command
+    call add(b:khuno_error_files, s:khuno_temp_error_file)
 endfunction
 
 
 function! s:Completion(ArgLead, CmdLine, CursorPos)
     let _version    = "version\n"
-    let actionables = "run\nshow\nread\n"
+    let actionables = "run\nshow\nread\ndebug\n"
     return _version . actionables
 endfunction
 
 
 function! s:Version()
-    call s:Echo("khuno.vim version 0.0.2dev", 1)
+    call s:Echo("khuno.vim version 0.0.3dev", 1)
 endfunction
 
 
@@ -342,6 +388,8 @@ function! s:Proxy(action)
         call s:ToggleErrorWindow()
     elseif (a:action == "read")
         call s:ParseReport()
+    elseif (a:action == "debug")
+        call s:MakeDebugWindow()
     else
         call s:Echo("Khuno: not a valid file or option ==> " . a:action)
     endif
