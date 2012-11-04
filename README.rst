@@ -119,11 +119,30 @@ errors, like::
 
 The text is optional, it will default to ``[E]``. How boring.
 
+FAQ
+---
+**Nothing seems to be happenning although I know there are errors**: A couple
+of things here: make sure you followed the installation instructions (e.g.
+``filetype on``) including having ``flake8`` installed and available on your
+path. If all else fails, and ``Khuno`` loaded, run ``:Khuno debug`` that will
+give you debugging information that might be useful.
+
+**I opened a file (or buffer) and nothing happened**: This plugin calls the
+checker asynchronously, so results are only fed back to the buffer *when the
+cursor moves*. If you have not moved the cursor, the plugin will not paint the
+buffer immediately with results.
+
+**I just type some erroneous Python but the plugin didn't show it**: The plugin
+will be called when you enter a buffer or when you save the file, and will feed
+the errors back when the cursor moves. If you added something that is erroneous
+it will not show up unless you save the file and move the cursor at least once.
+
 About the name
 --------------
 Khuno is the name of an Inca God that ruled the cold weather and loved the
 snow. He would get *very* angry when someone messed with his snow. Now he rules
 another type of flakes, the Python ones.
+
 
 License
 -------
