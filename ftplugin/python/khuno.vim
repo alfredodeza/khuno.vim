@@ -21,6 +21,16 @@ if !exists('g:khuno_flake_cmd')
 endif
 
 
+function! s:KhunoDebugSyntax() abort
+  let b:current_syntax = 'khunoDebug'
+  syn match KhunoDelimiter            "\v\s+(\=\=\>)\s+"
+  syn match KhunoKeys                 "\v^\w+\s+(.?)(\=)"
+
+  hi def link KhunoDelimiter          Comment
+  hi def link KhunoKeys               String
+endfunction
+
+
 function! s:KhunoErrorSyntax() abort
   let b:current_syntax = 'khunoErrors'
   syn match KhunoDelimiter            "\v\s+(\=\=\>)\s+"
@@ -172,6 +182,7 @@ function! s:MakeDebugWindow() abort
     exe 1
     exe "normal! 0|h"
     call s:Echo("Hit q or Enter to exit", 1)
+    call s:KhunoDebugSyntax()
 endfunction
 
 
