@@ -189,6 +189,10 @@ endfunction
 
 
 function! s:MakeErrorWindow() abort
+    if !exists('b:flake_errors')
+        call s:Echo("No flake errors from a previous run")
+        return
+    endif
     call s:ClearAll()
     " TODO revisit this at some point, redrawing makes the terminal
     " flicker
@@ -260,6 +264,9 @@ endfunction
 function! s:ParseReport()
     " typical line expected from a report:
     " some_file.py:107:80: E501 line too long (86 > 79 characters)
+    if !exists('b:khuno_called_async')
+        return
+    endif
     if (b:khuno_called_async == 0)
         return
     endif
