@@ -189,6 +189,7 @@ endfunction
 
 
 function! s:MakeErrorWindow() abort
+    let modified = &modified
     if !exists('b:flake_errors')
         call s:Echo("No flake errors from a previous run")
         return
@@ -230,7 +231,11 @@ function! s:MakeErrorWindow() abort
     nnoremap <silent> <buffer> <Enter> :call <sid>GoToInlineError(1)<CR>
     call s:KhunoErrorSyntax()
     exe "normal! 0|h"
-    call s:Echo("Hit q to exit", 1)
+    if modified
+        call s:Echo("Khuno has not updated yet, errors might be out of date. Hit q to exit")
+    else
+        call s:Echo("Hit q to exit", 1)
+    endif
 endfunction
 
 
