@@ -59,8 +59,11 @@ made to flake8, saving the results.
 If you *move* the cursor, it will then proceed to read the results from the
 check and underline all the words or lines in the current file.
 
-Every time you save the file you will trigger the asynchronous call, enforcing
-a refresh of the check and error display.
+Every time you save the file or you are exiting ``insert mode``  you will
+trigger the asynchronous call, enforcing a refresh of the check and error
+display.
+
+Even if you have unsaved (modified buffer) changes, they will show up.
 
 Customization
 -------------
@@ -117,7 +120,8 @@ errors, like::
     set statusline+=%{khuno#Status('FUU')}%*     " are there any errors? FUU!
     set statusline+=%*                           " switch back to normal status color
 
-The text is optional, it will default to ``[E]``. How boring.
+The text is optional, it will default to ``[N]``, where ``N`` is the number of
+errors for the current buffer.
 
 FAQ
 ---
@@ -142,7 +146,6 @@ About the name
 Khuno is the name of an Inca God that ruled the cold weather and loved the
 snow. He would get *very* angry when someone messed with his snow. Now he rules
 another type of flakes, the Python ones.
-
 
 License
 -------
