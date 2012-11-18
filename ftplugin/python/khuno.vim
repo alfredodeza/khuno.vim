@@ -69,6 +69,8 @@ endfunction
 augroup khuno_automagic
     au BufEnter * if &ft ==# 'python' | call s:Flake() | endif
     au BufWritePost * if &ft ==# 'python' | call s:Flake() | endif
+    au InsertLeave <buffer> if &ft ==# 'python' | call s:Flake() | endif
+    au InsertLeave * if &ft ==# 'python' | call  s:ParseReport() | endif
 augroup END
 
 au CursorMoved * if &ft ==# 'python' | call  s:GetFlakesMessage() | endif
@@ -107,12 +109,6 @@ if exists('g:khuno_automagic')
 else
     call s:KhunoAutomagic(1)
 endif
-
-
-function! s:CurrentPath()
-    let cwd = expand("%:p")
-    return cwd
-endfunction
 
 
 function! s:ClearAll(...)
@@ -260,8 +256,11 @@ function! s:Flake()
 
     let cmd=g:khuno_flake_cmd . s:khuno_builtins_opt . s:khuno_ignores . s:khuno_max_line_length
 
-    let abspath = s:CurrentPath()
-    let cmd = cmd . " ". abspath
+    " Write to a temp path so that unmodified contents are parsed
+    " correctly, regardless.
+    let tmp_path = tempname()
+    call writefile(getline(1, '$'), tmp_path)
+    let cmd = cmd . " ". tmp_path
     call s:AsyncCmd(cmd)
 endfunction
 
@@ -277,7 +276,7 @@ function! s:ParseReport()
     endif
 
     let current_file = expand("%:t")
-    let line_regex = '\v^(.*.py):(\d+):'
+    let line_regex = '\v^(.*):(\d+):'
     let errors = {}
     for line in readfile(b:khuno_debug['temp_file'])
         if line =~ line_regex
