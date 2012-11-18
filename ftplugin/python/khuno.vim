@@ -387,7 +387,7 @@ endfunction
 
 
 function! s:Version()
-    call s:Echo("khuno.vim version 0.0.3dev", 1)
+    call s:Echo("khuno.vim version 0.0.4dev", 1)
 endfunction
 
 
