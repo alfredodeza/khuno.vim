@@ -67,14 +67,26 @@ endfunction
 
 " au commands
 augroup khuno_automagic
-  au BufEnter * if &ft ==# 'python' | call s:Flake() | endif
-  au BufWritePost * if &ft ==# 'python' | call s:Flake() | endif
-  au InsertLeave <buffer> if &ft ==# 'python' | call s:Flake() | endif
-  au InsertLeave * if &ft ==# 'python' | call  s:ParseReport() | endif
+  autocmd!
+  autocmd BufEnter * if s:au_should_run() | call s:Flake() | endif
+  autocmd BufWritePost * if s:au_should_run() | call s:Flake() | endif
+  autocmd InsertLeave <buffer> if s:au_should_run() | call s:Flake() | endif
+  autocmd InsertLeave * if s:au_should_run() | call  s:ParseReport() | endif
 augroup END
 
 au CursorMoved * if &ft ==# 'python' | call  s:GetFlakesMessage() | endif
 au CursorMoved * if &ft ==# 'python' | call  s:ParseReport() | endif
+
+
+function! s:au_should_run() abort
+  if !exists('b:khuno_au_enabled')
+    let b:khuno_au_enabled = 1
+  endif
+  if ((&ft ==# 'python') && (b:khuno_au_enabled))
+    return 1
+  endif
+  return 0
+endfunction
 
 
 function! s:KhunoAutomagic(enabled)
@@ -406,6 +418,11 @@ function! s:Proxy(action)
     call s:ParseReport()
   elseif (a:action == "debug")
     call s:MakeDebugWindow()
+  elseif (a:action == "on")
+    let b:khuno_au_enabled = 1
+  elseif (a:action == "off")
+    call s:ClearFlakes()
+    let b:khuno_au_enabled = 0
   else
     call s:Echo("Khuno: not a valid file or option ==> " . a:action)
   endif
