@@ -141,6 +141,13 @@ will be called when you enter a buffer or when you save the file, and will feed
 the errors back when the cursor moves. If you added something that is erroneous
 it will not show up unless you save the file and move the cursor at least once.
 
+**How do I get the underlined errors? I get something different**: This depends
+on how your current color theme is highlighting bad spelling. Khuno uses the
+same highlight for ``SpellBad``, so however this is defined in your color theme
+is how it will look. If you are on a terminal and want to enforce underlining
+instead of something else, you can try this: ``hi SpellBad cterm=underline``
+
+
 About the name
 --------------
 Khuno is the name of an Inca God that ruled the cold weather and loved the
