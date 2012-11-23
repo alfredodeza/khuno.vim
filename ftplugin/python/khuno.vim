@@ -287,7 +287,6 @@ function! s:ParseReport()
     return
   endif
 
-  let current_file = expand("%:t")
   let line_regex = '\v^(.*):(\d+):'
   let errors = {}
   for line in readfile(b:khuno_debug['temp_file'])
