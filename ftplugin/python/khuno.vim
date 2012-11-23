@@ -278,8 +278,6 @@ endfunction
 
 
 function! s:ParseReport()
-  " typical line expected from a report:
-  " some_file.py:107:80: E501 line too long (86 > 79 characters)
   if !exists('b:khuno_called_async')
     return
   endif
@@ -287,9 +285,31 @@ function! s:ParseReport()
     return
   endif
 
+  " Parse stdout first, then try stderr for invalid syntax
+  " if we come back empty handed
+  let errors = s:ReadOutput(b:khuno_debug['temp_file'])
+  if !(len(keys(errors))) && s:has_invalid_syntax()
+    let errors = s:ReadOutput(b:khuno_debug['temp_error'])
+  endif
+
+  silent! call s:ClearFlakes()
+  let b:flake_errors = errors
+  if len(errors)
+    call s:ShowErrors()
+  endif
+endfunction
+
+
+function! s:ReadOutput(file)
+  " Output can be a stdout file or a stderr
+  " so we make sure we can parse any of them here
+  " to prevent not showing anything in case we have a syntax error
+  " that makes the checker to blow up.
+  " typical line expected from a report:
+  " some_file.py:107:80: E501 line too long (86 > 79 characters)
   let line_regex = '\v^(.*):(\d+):'
   let errors = {}
-  for line in readfile(b:khuno_debug['temp_file'])
+  for line in readfile(a:file)
     if line =~ line_regex
       let current_error = {}
       let error_line = matchlist(line, '\v:(\d+):')[1]
@@ -310,12 +330,29 @@ function! s:ParseReport()
       let errors.last_error_line = error_line
     endif
   endfor
-  silent! call s:ClearFlakes()
-  let b:flake_errors = errors
-  if len(errors)
-    call s:ShowErrors()
+  return errors
+endfunction
+
+
+function! s:has_invalid_syntax()
+  " This will only be called from s:ParseReport, so no effort into
+  " check all the buffer flags
+  if !exists('b:khuno_error_files')
+    return 0
+  endif
+  let err_file = b:khuno_error_files[0]
+  if !filereadable(err_file)
+    return 0
+  else
+    for line in readfile(err_file)
+      if line =~ '\v\s+invalid\s+syntax'
+        return 1
+      endif
+    endfor
+    return 0
   endif
 endfunction
+
 
 
 function! s:ShowErrors() abort
