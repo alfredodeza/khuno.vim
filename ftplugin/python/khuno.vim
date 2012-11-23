@@ -394,12 +394,13 @@ endfunction
 function! s:Completion(ArgLead, CmdLine, CursorPos)
   let _version    = "version\n"
   let actionables = "run\nshow\nread\ndebug\n"
-  return _version . actionables
+  let toggle = "on\noff\n"
+  return _version . actionables . toggle
 endfunction
 
 
 function! s:Version()
-  call s:Echo("khuno.vim version 0.0.4dev", 1)
+  call s:Echo("khuno.vim version 0.0.1", 1)
 endfunction
 
 
