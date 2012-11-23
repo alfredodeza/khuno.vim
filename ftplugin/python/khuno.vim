@@ -271,7 +271,7 @@ function! s:Flake()
   " Write to a temp path so that unmodified contents are parsed
   " correctly, regardless.
   let tmp_path = tempname()
-  call writefile(getline(1, '$'), tmp_path)
+  silent! execute "w " . tmp_path
   let cmd = cmd . " ". tmp_path
   call s:AsyncCmd(cmd)
 endfunction
