@@ -123,6 +123,18 @@ errors, like::
 The text is optional, it will default to ``[N]``, where ``N`` is the number of
 errors for the current buffer.
 
+Disabling/Enabling the checker
+------------------------------
+You can also disable the check on a specific buffer with::
+
+    :Khuno off
+
+To turn it on again, you can run::
+
+    :Khuno on
+
+
+
 FAQ
 ---
 **Nothing seems to be happenning although I know there are errors**: A couple
