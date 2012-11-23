@@ -17,7 +17,7 @@ function! khuno#Status(...) abort
 	if err_count >= 2
 	    let text = err_count -1
 	else
-	    let text = err_count
+	    let text = 0
 	endif
     endif
     if len(b:flake_errors)
