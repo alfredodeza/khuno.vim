@@ -164,7 +164,7 @@ function! s:MakeDebugWindow() abort
     return
   endif
   let s:debug = b:khuno_debug
-  let s:error_file = b:khuno_error_files[0]
+  let s:error_file = b:khuno_error_files[-1]
   call s:ClearAll()
   let winnr = bufwinnr('Debug.khuno')
   silent! execute  winnr < 0 ? 'botright new ' . 'Debug.khuno' : winnr . 'wincmd w'
@@ -285,11 +285,11 @@ function! s:ParseReport()
     return
   endif
 
-  " Parse stdout first, then try stderr for invalid syntax
-  " if we come back empty handed
-  let errors = s:ReadOutput(b:khuno_debug['temp_file'])
-  if !(len(keys(errors))) && s:has_invalid_syntax()
+  " Parse stderr first, then try stdout
+  if s:has_invalid_syntax()
     let errors = s:ReadOutput(b:khuno_debug['temp_error'])
+  else
+    let errors = s:ReadOutput(b:khuno_debug['temp_file'])
   endif
 
   silent! call s:ClearFlakes()
@@ -340,7 +340,7 @@ function! s:has_invalid_syntax()
   if !exists('b:khuno_error_files')
     return 0
   endif
-  let err_file = b:khuno_error_files[0]
+  let err_file = b:khuno_error_files[-1]
   if !filereadable(err_file)
     return 0
   else
