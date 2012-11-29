@@ -18,7 +18,7 @@ are welcomed and encouraged.
 
 Bug me at @alfredodeza on Twitter or fill the issues tab for this project.
 
-.. image:: https://pbs.twimg.com/media/A6gNXsVCQAAKYLi.png
+.. image:: https://github.com/alfredodeza/khuno.vim/raw/master/extras/khuno.gif
 
 why?
 ----
