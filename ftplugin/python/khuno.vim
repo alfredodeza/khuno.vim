@@ -10,6 +10,7 @@
 " Older versions do not support some of the stuff we use
 if exists('g:loaded_mark') || (v:version == 701 && ! exists('*matchadd')) || (v:version < 701)
   finish
+endif
 
 if exists("g:loaded_khuno") || &cp
   finish
