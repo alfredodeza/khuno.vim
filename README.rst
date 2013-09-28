@@ -159,6 +159,13 @@ same highlight for ``SpellBad``, so however this is defined in your color theme
 is how it will look. If you are on a terminal and want to enforce underlining
 instead of something else, you can try this: ``hi SpellBad cterm=underline``
 
+**Everything slows down when I move the cursor**: If you are using terminal Vim
+and have the option to display the line where the cursor is (with ``:set
+cursorline``) you will have performance problems. This is not the plugin
+per-se, but Vim will be slower to render. Two options to fix this: either
+disable it with ``:set nocursorline`` or use a GUI Vim (gVim, or MacVim for
+example).
+
 
 About the name
 --------------
