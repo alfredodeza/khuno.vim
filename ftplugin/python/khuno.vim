@@ -19,7 +19,7 @@ endif
 
 if !exists(tempname())
   let temp_location = fnamemodify(tempname(),":p:h:")
-  execute ":! mkdir " . temp_location
+  execute ":silent !mkdir " . temp_location . "&" | redraw!
 endif
 let g:loaded_khuno = 1
 
