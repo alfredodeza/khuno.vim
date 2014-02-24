@@ -423,6 +423,14 @@ function! s:AsyncCmd(cmd)
   if !exists('b:khuno_error_files')
     let b:khuno_error_files = []
   endif
+  let temp_dir_location = fnamemodify(tempname(),":p:h:")
+
+  " If the directory for the temp files does not exist go
+  " ahead and create one for us
+  if !exists(temp_dir_location)
+    call system('mkdir ' . temp_dir_location)
+  endif
+
   let s:khuno_temp_file = tempname()
   let s:khuno_temp_error_file = tempname()
   let command = "! " . a:cmd . " > " . s:khuno_temp_file . " 2> " . s:khuno_temp_error_file . " &"
