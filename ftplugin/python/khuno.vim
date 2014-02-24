@@ -17,10 +17,6 @@ if exists("g:loaded_khuno") || &cp
 endif
 
 
-if !exists(tempname())
-  let temp_location = fnamemodify(tempname(),":p:h:")
-  execute ":silent !mkdir " . temp_location . "&" | redraw!
-endif
 let g:loaded_khuno = 1
 
 
@@ -258,17 +254,6 @@ endfunction
 function! s:Flake()
   if !exists('b:khuno_debug')
     let b:khuno_debug = {}
-  endif
-
-  " Attempt to remove previous run temporary files
-  if has_key(b:khuno_debug, 'temp_file')
-    call delete(b:khuno_debug.temp_file)
-  endif
-  if has_key(b:khuno_debug, 'temp_python_file')
-    call delete(b:khuno_debug.temp_python_file)
-  endif
-  if has_key(b:khuno_debug, 'temp_error')
-    call delete(b:khuno_debug.temp_error)
   endif
 
   if exists("g:khuno_builtins")
