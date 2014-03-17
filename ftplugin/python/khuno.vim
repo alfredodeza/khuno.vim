@@ -370,7 +370,7 @@ function! s:ShowErrors() abort
     if line != "last_error_line"
       let err = b:flake_errors[line][0]
       if (err['error_column'] > 0)
-        if err['error_text'] =~ '\v\s+(line|trailing whitespace)'
+        if err['error_text'] =~ '\v\s+(line|trailing whitespace|invalid syntax)'
           let match = '\%' . line . 'l\n\@!'
         else
           let match = '^\%'. line . 'l\_.\{-}\zs\k\+\k\@!\%>' . err['error_column'] . 'c'
