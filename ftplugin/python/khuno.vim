@@ -274,7 +274,14 @@ function! s:Flake()
     let s:khuno_max_line_length=""
   endif
 
-  let cmd=g:khuno_flake_cmd . s:khuno_builtins_opt . s:khuno_ignores . s:khuno_max_line_length
+  let s:khuno_conffile = s:FindProjectConffile()
+  if s:khuno_conffile != ""
+    let s:khuno_config_opt=" --config=".s:khuno_conffile
+  else
+    let s:khuno_config_opt=""
+  endif
+
+  let cmd=g:khuno_flake_cmd . s:khuno_builtins_opt . s:khuno_ignores . s:khuno_max_line_length . s:khuno_config_opt
 
   " Write to a temp path so that unmodified contents are parsed
   " correctly, regardless.
@@ -283,6 +290,32 @@ function! s:Flake()
   let cmd = cmd . " ". tmp_path
   let b:khuno_debug.temp_python_file = tmp_path
   call s:AsyncCmd(cmd)
+endfunction
+
+
+function! s:FindProjectConffile()
+    let dirname = expand("%:p")
+    if dirname != ""
+      return s:FindProjectConffileSub(dirname)
+    else
+      return s:FindProjectConffileSub(getcwd())
+    endif
+endfunction
+
+
+function! s:FindProjectConffileSub(path)
+  if findfile("setup.cfg", a:path) != ""
+    return a:path."/setup.cfg"
+  elseif findfile("tox.ini", a:path) != ""
+    return a:path."/tox.ini"
+  else
+    let pos = strridx(a:path, "/")
+    if pos
+      return s:FindProjectConffileSub(a:path[:pos - 1])
+    else
+      return ""
+    endif
+  endif
 endfunction
 
 
