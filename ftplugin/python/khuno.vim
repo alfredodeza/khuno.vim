@@ -294,27 +294,11 @@ endfunction
 
 
 function! s:FindProjectConffile()
-    let dirname = expand("%:p")
-    if dirname != ""
-      return s:FindProjectConffileSub(dirname)
-    else
-      return s:FindProjectConffileSub(getcwd())
-    endif
-endfunction
-
-
-function! s:FindProjectConffileSub(path)
-  if findfile("setup.cfg", a:path) != ""
-    return a:path."/setup.cfg"
-  elseif findfile("tox.ini", a:path) != ""
-    return a:path."/tox.ini"
+  let conffile = findfile("setup.cfg", ".;")
+  if conffile != ""
+    return conffile
   else
-    let pos = strridx(a:path, "/")
-    if pos
-      return s:FindProjectConffileSub(a:path[:pos - 1])
-    else
-      return ""
-    endif
+    return findfile("tox.ini", ".;")
   endif
 endfunction
 
