@@ -311,6 +311,12 @@ function! s:ParseReport()
     return
   endif
 
+  " sometimes we may have stale tmp files that no longer exist
+  " bail out if they don't to prevent *can't open file* errors
+  if (!filereadable(b:khuno_debug['temp_error']) || !filereadable(b:khuno_debug['temp_file']))
+    return
+  endif
+
   " Parse stderr first, then try stdout
   if s:has_invalid_syntax()
     let errors = s:ReadOutput(b:khuno_debug['temp_error'])
