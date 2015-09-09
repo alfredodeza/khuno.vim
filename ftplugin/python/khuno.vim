@@ -1,6 +1,6 @@
 " File:        khuno.vim
 " Description: A Python Flakes plugin: analyze your code on the fly
-" Maintainer:  Alfredo Deza <alfredodeza AT gmail.com>
+" Maintainer:  Alfredo Deza <alfredo AT deza.pe>
 " License:     MIT
 " Notes:       The (current) alternatives forced you to call a function. We
 "              can do better. This plugin is better.
@@ -475,7 +475,7 @@ endfunction
 
 
 function! s:Version()
-  call s:Echo("khuno.vim version 0.0.1", 1)
+  call s:Echo("khuno.vim version 1.0.0", 1)
 endfunction
 
 
