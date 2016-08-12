@@ -285,7 +285,7 @@ function! s:Flake()
 
   " Write to a temp path so that unmodified contents are parsed
   " correctly, regardless.
-  let tmp_path = tempname()
+  let tmp_path = tempname() . ".py"
   silent! execute "keepalt w " . tmp_path
   let cmd = cmd . " ". tmp_path
   let b:khuno_debug.temp_python_file = tmp_path
