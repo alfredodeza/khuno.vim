@@ -294,12 +294,12 @@ endfunction
 
 
 function! s:FindProjectConffile()
-  let conffile = findfile("setup.cfg", ".;")
-  if conffile != ""
-    return conffile
-  else
-    return findfile("tox.ini", ".;")
-  endif
+  for config in [".flake8", ".pep8", "setup.cfg", "tox.ini"]
+    let config_path = findfile(config, ".;")
+    if config_path != ""
+      return config_path
+    endif
+  endfor
 endfunction
 
 
