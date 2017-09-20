@@ -457,7 +457,8 @@ function! s:AsyncCmd(cmd)
   let s:khuno_temp_file = tempname()
   let s:khuno_temp_error_file = tempname()
   let command = "! " . a:cmd . " > " . s:khuno_temp_file . " 2> " . s:khuno_temp_error_file . " &"
-  silent execute command
+  let command =  a:cmd . " > " . s:khuno_temp_file . " 2> " . s:khuno_temp_error_file . " &"
+  silent call system(command)
   let b:khuno_called_async = 1
   let b:khuno_debug.temp_file = s:khuno_temp_file
   let b:khuno_debug.temp_error = s:khuno_temp_error_file
